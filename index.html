@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Happy Birthday Junnu</title>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #1a0f2e;
+            font-family: "Brush Script MT", "Segoe Script", Georgia, cursive
+        }
+
+        #day {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 30%, #ffd9ec, #d7b8ff 55%, #8a6bd1)
+        }
+
+        /* banner */
+        #arch {
+            position: absolute;
+            top: 1.5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(96vw, 900px, calc(42vh*1.8));
+            aspect-ratio: 1.8
+        }
+
+        #bls {
+            position: absolute;
+            inset: 0
+        }
+
+        #banner {
+            position: absolute;
+            left: 50%;
+            top: 27%;
+            width: 58%;
+            z-index: 5;
+            transform: translateX(-50%);
+            transform-origin: 50% 0;
+            animation: swing 5s ease-in-out infinite;
+            filter: drop-shadow(0 6px 8px rgba(40, 0, 30, .55))
+        }
+
+        @keyframes swing {
+            50% {
+                transform: translateX(-50%) rotate(1.4deg)
+            }
+        }
+
+        /* balloons */
+        .bl {
+            position: absolute;
+            aspect-ratio: .85;
+            border-radius: 50% 50% 48% 48%;
+            transform: translate(-50%, -50%);
+            animation: bob 4s ease-in-out infinite;
+            box-shadow: inset -6px -8px 14px rgba(0, 0, 0, .2), inset 6px 6px 10px rgba(255, 255, 255, .4), 0 2px 4px rgba(0, 0, 0, .15)
+        }
+
+        @keyframes bob {
+            50% {
+                transform: translate(-50%, -50%) translateY(-5px)
+            }
+        }
+
+        @keyframes float {
+            50% {
+                transform: translateY(-14px)
+            }
+        }
+
+        /* cake */
+        #wrap {
+            position: absolute;
+            left: 50%;
+            bottom: 10vh;
+            transform: translateX(-50%);
+            width: min(66vw, 340px, calc(37vh*1.2))
+        }
+
+        #cake {
+            width: 100%;
+            display: block;
+            overflow: visible
+        }
+
+        .it {
+            position: absolute;
+            font-size: clamp(26px, 6vw, 46px);
+            filter: drop-shadow(0 3px 3px rgba(0, 0, 0, .3));
+            animation: float 3.5s ease-in-out infinite
+        }
+
+        #flame {
+            transform-origin: 150px 62px;
+            animation: flick .25s infinite alternate;
+            transition: opacity .3s
+        }
+
+        @keyframes flick {
+            from {
+                transform: scale(1, 1) skewX(-3deg)
+            }
+
+            to {
+                transform: scale(.92, 1.08) skewX(3deg)
+            }
+        }
+
+        #flame.off {
+            opacity: 0;
+            animation: none
+        }
+
+        #hint {
+            position: absolute;
+            bottom: calc(11vh + 118%*0 - 36px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 22px;
+            text-shadow: 0 2px 6px #0008;
+            text-align: center;
+            white-space: nowrap;
+            bottom: 5.5vh
+        }
+
+        #wish {
+            position: fixed;
+            top: 36%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: clamp(30px, 7vw, 64px);
+            color: #fff;
+            text-shadow: 0 0 14px gold, 0 3px 6px #0009;
+            z-index: 30;
+            pointer-events: none;
+            white-space: nowrap
+        }
+
+        #wish.show {
+            animation: pop 3.5s ease-out forwards
+        }
+
+        @keyframes pop {
+            15% {
+                transform: translate(-50%, -50%) scale(1.15)
+            }
+
+            25% {
+                transform: translate(-50%, -50%) scale(1)
+            }
+
+            80% {
+                opacity: 1
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0
+            }
+        }
+
+        #fx {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20
+        }
+
+        #fade {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 40;
+            transition: opacity 1.6s
+        }
+
+        #final {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            font-family: cursive;
+            font-size: clamp(48px, 10vw, 120px);
+            text-align: center;
+            line-height: 1.1;
+            opacity: 0;
+            transition: opacity 3s;
+            pointer-events: none;
+            background: linear-gradient(100deg, #8a5a00, #ffd700 30%, #fff6b0 50%, #ffd700 70%, #8a5a00);
+            background-size: 250% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 14px rgba(255, 200, 0, .7));
+            animation: shine 3s linear infinite;
+        }
+
+        #final.show {
+            opacity: 1
+        }
+
+        @keyframes shine {
+            to {
+                background-position: -250% 0
+            }
+        }
+
+        #mute {
+            position: fixed;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            background: #fff;
+            border: 0;
+            border-radius: 30px;
+            padding: 9px 20px;
+            font: 700 16px Georgia, serif;
+            cursor: pointer;
+            box-shadow: 0 3px 10px #0006
+        }
+
+        #start {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: #1a0f2e;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #fff
+        }
+
+        #start button {
+            background: linear-gradient(#ffe066, #e0a100);
+            border: 0;
+            border-radius: 40px;
+            padding: 16px 34px;
+            font: 700 22px Georgia, serif;
+            cursor: pointer;
+            color: #3b2600
+        }
+
+        #start p {
+            max-width: 320px;
+            margin: 14px auto 0;
+            font: 15px Georgia, serif;
+            opacity: .8
+        }
+
+        .menubar {
+            position: fixed;
+            height: 100vh;
+            width: 230px;
+            background-color: #ffffff21;
+            z-index: 70;
+            overflow: hidden;
+            left: -230px;
+        }
+
+        .open .menubar {
+            left: 0;
+        }
+
+        .toolbar {
+            z-index: 76;
+            position: fixed;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 8px;
+            transition: 5s fade;
+            border: 1px solid #fff;
+            padding: 14px;
+            cursor: pointer;
+            left: 10px;
+            top: 10px;
+        }
+
+        .toolbar::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 2px;
+            border-radius: 0.25rem;
+            background-color: #fff;
+            top: 16px;
+            transition: 5s fade;
+            transform: translateX(-50%);
+        }
+
+        .toolbar::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 2px;
+            border-radius: 0.25rem;
+            background-color: #fff;
+            transition: 5s fade;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .open .toolbar::after {
+            transform: translateX(-50%) rotate(50deg);
+            top: initial !important;
+        }
+
+        .open .toolbar::before {
+            transform: translateX(-50%) translateY(-2px) rotate(-50deg);
+            width: 16px !important;
+        }
+
+        .open .toolbar {
+
+            left: 190px;
+        }
+
+        .menubar ul {
+            margin-top: 50px;
+            padding: 0;
+        }
+
+        .menubar li {
+            list-style-type: none;
+            padding: 10px;
+            border-bottom: 1px solid #ffffff2b;
+        }
+
+        .menubar li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: large;
+            letter-spacing: 2px;
+            font-family: emoji;
+        }
+
+        .menubar li a.active {
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="toolbar"></div>
+    <div class="menubar">
+        <ul>
+            <li>
+                <a href="index.html">Birthday</a>
+            </li>
+            <li>
+                <a href="reveal.html">Reveal</a>
+            </li>
+            <li>
+                <a href="asMatch.html">AS match</a>
+            </li>
+        </ul>
+    </div>
+    <div id="day">
+        <div id="arch">
+            <div id="bls"></div>
+            <svg id="banner" viewBox="0 0 600 270">
+                <defs>
+                    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#fff3a0" />
+                        <stop offset=".45" stop-color="#ffc400" />
+                        <stop offset="1" stop-color="#b87a00" />
+                    </linearGradient>
+                    <linearGradient id="board" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#7a1238" />
+                        <stop offset="1" stop-color="#3d0620" />
+                    </linearGradient>
+                </defs>
+                <path d="M150 0V50M450 0V50" stroke="#ffd700" stroke-width="5" />
+                <rect x="10" y="48" width="580" height="212" rx="24" fill="url(#board)" stroke="url(#gold)"
+                    stroke-width="8" />
+                <rect x="26" y="64" width="548" height="180" rx="16" fill="none" stroke="#ffd700" stroke-opacity=".6"
+                    stroke-width="2" stroke-dasharray="2 7" />
+                <text x="300" y="134" text-anchor="middle" font-size="68"
+                    font-family="'Brush Script MT','Segoe Script',cursive" fill="url(#gold)" stroke="#2a0010"
+                    stroke-width="1.2" paint-order="stroke">Happy Birthday</text>
+                <text x="300" y="229" text-anchor="middle" font-size="104" font-weight="700" font-family="Georgia,serif"
+                    letter-spacing="8" fill="url(#gold)" stroke="#2a0010" stroke-width="2"
+                    paint-order="stroke">JUNNU</text>
+            </svg>
+        </div>
+        <div id="wrap">
+            <svg id="cake" viewBox="0 0 300 250"></svg>
+        </div>
+        <div id="hint">Make a wish &amp; blow into your mic 🎤</div>
+    </div>
+    <div id="wish">🎉 Make it a day to remember! 🎉</div>
+    <div id="final">
+        Happy Birthday<br>Junnu
+    </div>
+    <canvas id="fx"></canvas>
+    <div id="fade"></div>
+    <button id="mute">🔊 Music on</button>
+    <div id="start">
+        <div>
+            <div style="font-size:60px">🎂</div><button id="go">Tap to start the party</button>
+            <p>Allow the microphone so you can blow out the candle. (No mic? Just tap the candle.)</p>
+        </div>
+    </div>
+
+    <script>
+        /* ===== EDIT HERE ===== */
+        const FACE_SRC = "./assets/images/junnu/final.pngmages/face.jpg";   // her photo
+        const NIGHT_AFTER = 5000;            // ms after candle is blown out
+        /* ===================== */
+        const $ = s => document.querySelector(s);
+        const cv = $("#fx"), ctx = cv.getContext("2d"); let W, H;
+        function rs() { W = cv.width = innerWidth; H = cv.height = innerHeight } rs(); addEventListener("resize", rs);
+        const rnd = (a, b) => a + Math.random() * (b - a);
+
+        /* ---- build cake ---- */
+        (function () {
+            let s = '<ellipse cx="150" cy="236" rx="146" ry="13" fill="#d9cfe8"/><ellipse cx="150" cy="230" rx="132" ry="10" fill="#fff"/>';
+            s += '<rect x="30" y="150" width="240" height="76" rx="10" fill="#4a2511"/><rect x="30" y="144" width="240" height="12" fill="#2b1209"/>';
+            for (let i = 0; i < 12; i++)s += `<circle cx="${40 + i * 20}" cy="${156 + (i % 2) * 6}" r="10" fill="#2b1209"/>`;
+            for (let i = 0; i < 11; i++)s += `<circle cx="${50 + i * 20}" cy="200" r="5" fill="#f8e1c8"/>`;
+            s += '<rect x="70" y="92" width="160" height="60" rx="8" fill="#5e3118"/><rect x="70" y="86" width="160" height="12" fill="#2b1209"/>';
+            for (let i = 0; i < 8; i++)s += `<circle cx="${80 + i * 20}" cy="${98 + (i % 2) * 6}" r="10" fill="#2b1209"/>`;
+            [95, 205].forEach(x => s += `<circle cx="${x}" cy="84" r="8" fill="#d62839"/><path d="M${x} 76 q6 -14 14 -16" stroke="#2a7a2a" fill="none" stroke-width="2"/>`);
+            s += '<rect x="144" y="46" width="12" height="42" rx="2" fill="#ff7aa2"/><path d="M144 56l12 -5M144 66l12 -5M144 76l12 -5M144 86l12 -5" stroke="#fff" stroke-width="3"/><rect x="149" y="40" width="2" height="8" fill="#333"/>';
+            s += '<defs><radialGradient id="fg" cx=".5" cy=".7"><stop offset="0" stop-color="#fff7b0"/><stop offset=".6" stop-color="#ffb100"/><stop offset="1" stop-color="#ff5a00"/></radialGradient></defs>';
+            s += '<g id="flame"><path d="M150 18 Q164 38 150 48 Q136 38 150 18Z" fill="url(#fg)"/></g>';
+            $("#cake").innerHTML = s;
+            const items = ["🍫:-14%:6%", "🍬:-4%:-2%", "🍩:-16%:26%", "🧁:-6%:34%", "🍭:98%:4%", "🎁:104%:30%", "🍫:90%:-3%", "🍪:112%:8%"];
+            items.forEach((t, i) => { const [e, l, b] = t.split(":"); const d = document.createElement("div"); d.className = "it"; d.textContent = e; d.style.cssText = `left:${l};bottom:${b};animation-delay:${i * .3}s`; $("#wrap").appendChild(d) });
+            const cols = ["#ff4d6d", "#ffd60a", "#4cc9f0", "#80ed99", "#b5179e", "#ff9e00", "#4361ee", "#f72585"];
+            const ring = (n, rx, ry, big, small, off) => {
+                for (let i = 0; i < n; i++) {
+                    const a = Math.PI * i / (n - 1), sz = i % 2 ? small : big, x = 50 + rx * Math.cos(a), y = 100 - ry * Math.sin(a), c = cols[(i + off) % 8];
+                    const d = document.createElement("div"); d.className = "bl";
+                    d.style.cssText = `left:${x}%;top:${y}%;width:${sz}%;background:radial-gradient(circle at 35% 28%,#fffc,${c} 55%);animation-delay:${(i % 6) * .35}s;z-index:${i % 2 ? 2 : 1}`;
+                    $("#bls").appendChild(d)
+                }
+            };
+            ring(30, 47, 92, 11.5, 7, 0); ring(24, 38, 74, 8.5, 5.5, 3);
+        })();
+
+        /* ---- face image ---- */
+        const FACE_SOURCES = [
+            "./assets/images/junnu/third-date.jpg",
+            "./assets/images/junnu/visiting_godavari.jpg",
+            "./assets/images/junnu/first-selfie.jpg",
+            "./assets/images/junnu/final.png",
+            "./assets/images/junnu/second_date.jpg"
+        ];
+
+        const faceImages = FACE_SOURCES.map(src => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+        function addFace(x, y) {
+            const randomFace = faceImages[
+                Math.floor(Math.random() * faceImages.length)
+            ];
+
+            F.push({
+                x,
+                y,
+                t: 0,
+                image: randomFace
+            });
+        }
+        /* ---- audio: synthesized Happy Birthday + mute ---- */
+        let ac, master, muted = false, songOn = false;
+        const N = { G4: 392, A4: 440, B4: 494, C5: 523, D5: 587, E5: 659, F5: 698, G5: 784 };
+        const SONG = [["G4", .75], ["G4", .25], ["A4", 1], ["G4", 1], ["C5", 1], ["B4", 2], ["G4", .75], ["G4", .25], ["A4", 1], ["G4", 1], ["D5", 1], ["C5", 2], ["G4", .75], ["G4", .25], ["G5", 1], ["E5", 1], ["C5", 1], ["B4", 1], ["A4", 1], ["F5", .75], ["F5", .25], ["E5", 1], ["C5", 1], ["D5", 1], ["C5", 2]];
+        function playSong() {
+            if (!ac || songOn && false) return;
+            let t = ac.currentTime + .1; const beat = .5;
+            SONG.forEach(([n, d]) => {
+                const o = ac.createOscillator(), g = ac.createGain(); o.type = "triangle"; o.frequency.value = N[n];
+                g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.9, t + .03); g.gain.exponentialRampToValueAtTime(.001, t + d * beat * .95);
+                o.connect(g); g.connect(master); o.start(t); o.stop(t + d * beat); t += d * beat;
+            });
+            setTimeout(playSong, (t - ac.currentTime + 1.5) * 1000);
+        }
+        $("#mute").onclick = () => { muted = !muted; if (master) master.gain.value = muted ? 0 : .22; $("#mute").textContent = muted ? "🔇 Music off" : "🔊 Music on" };
+
+        /* ---- mic ---- */
+        let an, buf, thr = .1, blowT = 0, fake = 0, blown = false, mode = "day";
+        async function startMic() {
+            try {
+                const st = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const src = ac.createMediaStreamSource(st); an = ac.createAnalyser(); an.fftSize = 1024; src.connect(an); buf = new Float32Array(an.fftSize);
+                let base = 0, c = 0; const cal = setInterval(() => { an.getFloatTimeDomainData(buf); base += rms(); c++; if (c >= 15) { clearInterval(cal); thr = Math.max(.08, base / c * 3 + .05) } }, 60);
+            } catch (e) { $("#hint").textContent = "No mic access – tap the candle to blow it out 🕯️" }
+        }
+        function rms() { let s = 0; for (let i = 0; i < buf.length; i++)s += buf[i] * buf[i]; return Math.sqrt(s / buf.length) }
+        $("#cake").onclick = () => { if (!blown) fake = 1.2 };
+
+        $("#go").onclick = () => {
+            $("#start").style.display = "none";
+            ac = new (window.AudioContext || window.webkitAudioContext)(); ac.resume();
+            master = ac.createGain(); master.gain.value = .22; master.connect(ac.destination);
+            playSong(); startMic();
+        };
+
+        /* ---- particles ---- */
+        let P = [], F = [], last = performance.now();
+        const COL = ["#ff4d6d", "#ffd60a", "#4cc9f0", "#80ed99", "#b5179e", "#ff9e00", "#ffffff", "#f72585"];
+        function flamePos() { const r = $("#flame").getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] }
+        function air() {
+            const [fx, fy] = flamePos(); const x = W / 2 + rnd(-60, 60), y = H - 10; const a = Math.atan2(fy - y, fx - x) + rnd(-.12, .12);
+            P.push({ t: "air", x, y, vx: Math.cos(a) * 14, vy: Math.sin(a) * 14, r: 6, life: 1 })
+        }
+        function smoke() { const [x, y] = flamePos(); for (let i = 0; i < 14; i++)P.push({ t: "smoke", x: x + rnd(-4, 4), y, vx: rnd(-.6, .6), vy: -rnd(.8, 2.2), r: rnd(4, 9), life: 1 }) }
+        function sprinkle() {
+            let n = 0; const iv = setInterval(() => {
+                for (let i = 0; i < 7; i++)for (const s of [0, 1]) {
+                    P.push({ t: "conf", x: s ? W : 0, y: H * rnd(.45, .85), vx: (s ? -1 : 1) * rnd(6, 14), vy: -rnd(7, 17), g: .28, w: rnd(6, 12), h: rnd(4, 8), r: 0, vr: rnd(-.4, .4), col: COL[Math.random() * 8 | 0], life: 1, d: .005 });
+                }
+                if (++n > 70) clearInterval(iv);
+            }, 90);
+        }
+        function extinguish() {
+            if (blown) return; blown = true; $("#flame").classList.add("off"); smoke();
+            $("#hint").style.display = "none"; $("#wish").classList.add("show"); sprinkle();
+            setTimeout(toNight, NIGHT_AFTER);
+        }
+
+        /* ---- night ---- */
+        let stars = [], nightT = 0, nextRocket = 0, burstN = 0, finalShown = false;
+        function toNight() {
+            $("#fade").style.opacity = 1;
+            setTimeout(() => {
+                $("#day").style.display = "none"; $("#wish").style.display = "none"; P = []; mode = "night"; nightT = 0;
+                stars = [...Array(160)].map(() => ({ x: Math.random(), y: Math.random() * .8, r: rnd(.4, 1.8), p: rnd(0, 6) }));
+                ctx.fillStyle = "#04061a"; ctx.fillRect(0, 0, W, H);
+                $("#fade").style.opacity = 0;
+            }, 1800);
+        }
+        function moon() {
+            const x = W * .85, y = H * .16, r = Math.min(W, H) * .07;
+            const g = ctx.createRadialGradient(x, y, r * .5, x, y, r * 3); g.addColorStop(0, "rgba(255,248,200,.35)"); g.addColorStop(1, "rgba(255,248,200,0)");
+            ctx.fillStyle = g; ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
+            ctx.fillStyle = "#fff6cf"; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+            ctx.fillStyle = "#04061a"; ctx.beginPath(); ctx.arc(x + r * .4, y - r * .15, r * .85, 0, 7); ctx.fill(); // crescent
+        }
+        function rocket() { P.push({ t: "rk", x: W * rnd(.2, .8), y: H, vx: rnd(-1, 1), vy: -rnd(11, 15), g: .15, life: 1, tgt: H * rnd(.2, .45) }) }
+        function burst(x, y) {
+            burstN++; const c = [COL[Math.random() * 8 | 0], "#ffd700"];
+            for (let i = 0; i < 70; i++) { const a = Math.random() * 6.28, s = rnd(1, 7); P.push({ t: "sp", x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: .06, col: c[i % 2], life: 1, d: rnd(.008, .016) }) }
+            if (burstN % 3 === 0) F.push({ x: Math.min(Math.max(x, W * .2), W * .8), y: Math.min(Math.max(y, H * .28), H * .5), t: 0 });
+        }
+        function drawFaces(dt) {
+            F = F.filter(f => {
+                f.t += dt;
+
+                const T = f.t;
+
+                const a = T < 0.6
+                    ? T / 0.6
+                    : T < 2.6
+                        ? 1
+                        : 1 - (T - 2.6) / 0.8;
+
+                if (T > 3.4) return false;
+
+                const e = T < 0.6
+                    ? 1 - Math.pow(1 - T / 0.6, 3)
+                    : 1;
+
+                const r = Math.min(W, H) * 0.14 * e;
+
+                // Validate values before canvas operations
+                if (
+                    !Number.isFinite(f.x) ||
+                    !Number.isFinite(f.y) ||
+                    !Number.isFinite(r) ||
+                    !Number.isFinite(a) ||
+                    r <= 0
+                ) {
+                    return false;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, a);
+
+                // Golden radial glow
+                const g = ctx.createRadialGradient(
+                    f.x, f.y, r * 0.8,
+                    f.x, f.y, r * 1.8
+                );
+
+                g.addColorStop(0, "rgba(255,215,0,.6)");
+                g.addColorStop(1, "rgba(255,215,0,0)");
+
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, r * 1.8, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Circular face clipping
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Draw randomly assigned face image
+                const face = f.image;
+
+                if (face && face.complete && face.naturalWidth > 0) {
+                    const s = Math.max(
+                        (2 * r) / face.width,
+                        (2 * r) / face.height
+                    );
+
+                    ctx.drawImage(
+                        face,
+                        f.x - (face.width * s) / 2,
+                        f.y - (face.height * s) / 2,
+                        face.width * s,
+                        face.height * s
+                    );
+                }
+
+                ctx.restore();
+
+                // Golden circular border
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, a);
+                ctx.strokeStyle = "#ffd70000";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, r, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+                return true;
+            });
+        }
+        /* ---- main loop ---- */
+        function loop(now) {
+            const dt = Math.min(.05, (now - last) / 1000); last = now;
+            /* blow detection */
+            if (!blown && mode === "day") {
+                let blowing = false;
+                if (an) { an.getFloatTimeDomainData(buf); blowing = rms() > thr }
+                if (fake > 0) { blowing = true; fake -= dt }
+                if (blowing) { blowT += dt; air(); air(); $("#flame").style.transform = `skewX(${rnd(-14, 14)}deg) scale(1,${rnd(.7, 1)})` }
+                else { blowT = Math.max(0, blowT - dt); $("#flame").style.transform = "" }
+                if (blowT > .55) extinguish();
+            }
+            if (mode === "night") {
+                nightT += dt;
+                ctx.fillStyle = "rgba(4,6,26,.22)"; ctx.fillRect(0, 0, W, H);
+                for (const s of stars) { ctx.globalAlpha = .5 + .5 * Math.sin(now / 500 + s.p); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, 7); ctx.fill() }
+                ctx.globalAlpha = 1; moon();
+                if (nightT > 1.5 && nightT > nextRocket && nightT < 32) { rocket(); nextRocket = nightT + rnd(.5, 1.1) }
+                if (nightT > 16 && !finalShown) { finalShown = true; $("#final").classList.add("show") }
+                if (Math.random() < 0.02) {
+                    addFace(
+                        Math.random() * W,
+                        Math.random() * H
+                    );
+                }
+                drawFaces(dt);
+            } else ctx.clearRect(0, 0, W, H);
+            P = P.filter(p => {
+                if (p.t !== "air" && p.t !== "smoke") { p.vy += p.g; }
+                p.x += p.vx; p.y += p.vy;
+                if (p.t === "rk") { ctx.fillStyle = "#ffe9a0"; ctx.fillRect(p.x - 1.5, p.y, 3, 9); if (p.vy > -1 || p.y < p.tgt) { burst(p.x, p.y); return false } return true }
+                if (p.t === "air") { p.r += 1.6; p.life -= .045; if (p.life <= 0) return false; ctx.fillStyle = `rgba(255,255,255,${p.life * .35})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); return true }
+                if (p.t === "smoke") { p.r += .25; p.life -= .012; if (p.life <= 0) return false; ctx.fillStyle = `rgba(210,210,220,${p.life * .5})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); return true }
+                p.life -= p.d; if (p.life <= 0 || p.y > H + 40) return false;
+                ctx.globalAlpha = Math.min(1, p.life * 1.6);
+                if (p.t === "conf") { p.r += p.vr; p.vx *= .99; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore() }
+                else { p.vx *= .985; ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, 2.2, 0, 7); ctx.fill() }
+                ctx.globalAlpha = 1; return true;
+            });
+            requestAnimationFrame(loop);
+        }
+        requestAnimationFrame(loop);
+
+        let toolbar = document.querySelector('.toolbar');
+        let menu = document.querySelector('.menubar');
+
+        toolbar.addEventListener('click', () => {
+            document.body.classList.toggle('open');
+            menu.classList.toggle('active');
+        })
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let lis = menu.querySelectorAll('li a');
+            const currentPath = location.pathname.replace(/^\//, '') || 'index.html';
+            lis.forEach(e => {
+                if (e.getAttribute('href') == currentPath) {
+                    e.classList.add('active')
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AS Memory Match</title>
+    <style>
+        :root {
+            --bg: #14213d;
+            --panel: #1d2f57;
+            --gold: #fca311;
+            --ink: #f4f1de;
+            --teal: #2ec4b6;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 0, #22386b, var(--bg) 60%);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: -2px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin: 0
+        }
+
+        .stats {
+            font-size: 14px;
+            opacity: .85;
+            margin-top: 2px
+        }
+
+        #stage {
+            position: relative;
+            width: min(94vw, 640px)
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: clamp(4px, 1.2vw, 9px)
+        }
+
+        .card {
+            aspect-ratio: 1;
+            perspective: 700px;
+            cursor: pointer;
+            border: 0;
+            padding: 0;
+            background: none
+        }
+
+        .inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform .55s cubic-bezier(.4, .2, .2, 1)
+        }
+
+        .card.flipped .inner {
+            transform: rotateY(180deg)
+        }
+
+        .face {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            overflow: hidden;
+            display: grid;
+            place-items: center
+        }
+
+        .front {
+            background: linear-gradient(145deg, var(--gold), #e08e00);
+            color: var(--bg);
+            font-weight: 700;
+            font-size: clamp(14px, 4vw, 24px);
+            letter-spacing: -1px;
+            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35), 0 3px 0 #9a6200
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: #fff
+        }
+
+        .back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block
+        }
+
+        .card.matched .back {
+            box-shadow: 0 0 0 3px var(--teal)
+        }
+
+        .card.matched {
+            cursor: default
+        }
+
+        .card:focus-visible {
+            outline: 3px solid #fff;
+            outline-offset: 2px
+        }
+
+        @keyframes pop {
+            50% {
+                transform: rotateY(180deg) scale(1.12)
+            }
+        }
+
+        .card.matched.pop .inner {
+            animation: pop .5s
+        }
+
+        /* final image */
+        #final {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: none;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 40px rgba(252, 163, 17, .6)
+        }
+
+        #final.show {
+            display: block;
+            animation: zoom 1s ease-out
+        }
+
+        #final img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover
+        }
+
+        #final .cap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 18px;
+            text-align: center;
+            font-size: 22px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, .8))
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(.2) rotate(-8deg);
+                opacity: 0
+            }
+
+            to {
+                transform: none;
+                opacity: 1
+            }
+        }
+
+        button.btn {
+            margin-top: 14px;
+            background: var(--gold);
+            color: var(--bg);
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font: 700 16px Georgia, serif;
+            cursor: pointer;
+            z-index: 4;
+            position: relative;
+        }
+
+        /* modal */
+        #modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 10, 25, .7);
+            display: none;
+            place-items: center;
+            z-index: 50;
+            padding: 16px
+        }
+
+        #modal.show {
+            display: grid
+        }
+
+        .box {
+            background: var(--ink);
+            color: var(--bg);
+            border-radius: 18px;
+            max-width: 380px;
+            width: 100%;
+            position: relative;
+            padding: 22px;
+            text-align: center;
+            animation: boxin .6s cubic-bezier(.2, 1.4, .4, 1)
+        }
+
+        @keyframes boxin {
+            from {
+                transform: scale(.3) rotate(-6deg);
+                opacity: 0
+            }
+
+            to {
+                transform: none;
+                opacity: 1
+            }
+        }
+
+        .box h2 {
+            margin: 0 0 10px;
+            font-size: 26px;
+            background: linear-gradient(90deg, #e63946, var(--gold), #2a9d8f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 2s linear infinite;
+            background-size: 200%
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200%
+            }
+        }
+
+        .box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+            position: absolute;
+            inset: 0;
+            opacity: 0.55;
+        }
+
+        .box p {
+            line-height: 1.5;
+            margin: 12px 0 0;
+            position: relative;
+            color: #000000;
+            font-size: large;
+            font-family: cursive;
+            z-index: 5;
+        }
+
+        #fx {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            .inner {
+                transition-duration: .01s
+            }
+        }
+
+        .logo {
+            position: relative;
+        }
+
+        .logo-size {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 2px;
+            /* width: 50px;
+            height: 50px; */
+            border-radius: 0.5rem;
+        }
+        
+
+        .menubar {
+            position: fixed;
+            height: 100vh;
+            width: 230px;
+            background-color: #ffffff21;
+            z-index: 70;
+            overflow: hidden;
+            left: -230px;
+        }
+
+        .open .menubar {
+            left: 0;
+        }
+
+        .toolbar {
+            z-index: 76;
+            position: fixed;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin-top: 8px;
+            transition: 5s fade;
+            border: 1px solid #fff;
+            padding: 14px;
+            cursor: pointer;
+            left: 10px;
+            top: 10px;
+        }
+
+        .toolbar::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 2px;
+            border-radius: 0.25rem;
+            background-color: #fff;
+            top: 16px;
+            transition: 5s fade;
+            transform: translateX(-50%);
+        }
+
+        .toolbar::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 2px;
+            border-radius: 0.25rem;
+            background-color: #fff;
+            transition: 5s fade;
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        .open .toolbar::after {
+            transform: translateX(-50%) rotate(50deg);
+            top: initial !important;
+        }
+
+        .open .toolbar::before {
+            transform: translateX(-50%) translateY(-2px) rotate(-50deg);
+            width: 16px !important;
+        }
+
+        .open .toolbar {
+
+            left: 190px;
+        }
+
+        .menubar ul {
+            margin-top: 50px;
+            padding: 0;
+        }
+
+        .menubar li {
+            list-style-type: none;
+            padding: 10px;
+            border-bottom: 1px solid #ffffff2b;
+        }
+
+        .menubar li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: large;
+            letter-spacing: 2px;
+            font-family: emoji;
+        }
+
+        .menubar li a.active {
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="toolbar"></div>
+    <div class="menubar">
+        <ul>
+            <li>
+                <a href="index.html">Birthday</a>
+            </li>
+            <li>
+                <a href="reveal.html">Reveal</a>
+            </li>
+            <li>
+                <a href="asMatch.html">AS match</a>
+            </li>
+        </ul>
+    </div>
+    <header>
+        <div class="logo">
+            <img src="./assets/images/logo.png" alt="" class="logo-size">
+        </div>
+        <div>
+            <h1>AS Memory Match</h1>
+            <div class="stats">Moves: <span id="moves">0</span> · Pairs: <span id="pairs">0</span>/18</div>
+        </div>
+    </header>
+    <div id="stage">
+        <div id="board"></div>
+        <div id="final"><img id="finalImg" alt="Final">
+            <div class="cap" id="finalCap">You did it!</div>
+        </div>
+    </div>
+    <button class="btn" id="restart">Restart</button>
+    <div id="modal">
+        <div class="box">
+            <img id="mImg" alt="">
+            <p id="mDesc"></p>
+            <button class="btn" id="mClose">Continue</button>
+        </div>
+    </div>
+    <canvas id="fx"></canvas>
+
+    <script>
+        /* ============ EDIT HERE ============
+           Put your 13 photos in an "images" folder and list them below.
+           If a file is missing, an emoji placeholder is shown instead. */
+        const IMAGES = [
+            { src: "./assets/images/junnu/firstday.png", desc: "It was the first day I saw you in the exam hall. I don't know why, but the moment my eyes fell on you, something felt different. Among so many people, my eyes kept finding you, and my heart quietly told me that you were someone special. I didn't know your name or your story, but somehow, that very first glance became a memory I would never forget. ❤️" },
+            { src: "./assets/images/junnu/maths-exam.png", desc: "I started falling for you without even realizing it. I still remember how you tried to copy answers from my exam paper, and those little gestures of yours slowly started stealing my attention. I don't know when it happened, but I began thinking about you every minute, remembering every little thing you did. What started as a small attraction slowly turned into something deeper, and before I knew it, I had fallen in love with you. ❤️" },
+            { src: "./assets/images/junnu/waiting.png", desc: "I still remember the feeling of waiting for you outside the exam hall, hoping to see you waiting for me too. Those little moments, our quick conversations before heading home, meant more to me than you ever knew. I still remember your words, 'We'll write for our betterment. Maybe that's why I paid for all the subjects, even when I didn't need to, just for one more chance to see you, spend a few moments with you, and make another beautiful memory. ❤️" },
+            { src: "./assets/images/junnu/cycle_shop.png", desc: "I still remember that spot and the feeling in my heart when I saw you again after months. It was at the cycle shop, where you are waiting for your cycle tyre fixed. I never expected to see you there, but seeing you after such a long gap made me feel something I can't put into words. And walking alongside you towards your home felt so special. It was just a simple walk, but for me, it became another beautiful memory that I still carry in my heart. ❤️" },
+            { src: "./assets/images/junnu/diff-bus.png", desc: "After completing our intermediate, I saw you again after almost six months, sitting in the opposite bus. For a moment, I couldn't believe my eyes. Seeing you after such a long gap brought back all those old feelings. I quickly got down from my bus and waited for you at the bus stop, hoping to see you and share a few moments together. It was amazing how, even after so many months, my heart still waited for you just like before. ❤️" },
+            { src: "./assets/images/junnu/propose.png", desc: "After such a long journey, I finally gathered the courage to propose to you. Those three words had been living in my heart and running through my mind for so long, but somehow, I couldn't get them out of my mouth. I tried to express my feelings through lip-syncing, and before I could even finish, you slapped me on the mouth! That unexpected moment became one of the funniest and most unforgettable memories of my love story. ❤️" },
+            { src: "./assets/images/junnu/busstop.png", desc: "That bus stop became our special meeting place, even during the days when we had no way to communicate. We would wait for each other, hoping our eyes would meet and that we could spend some time together. We shared so many little bus journeys, but one will always remain special to me — the day we sat next to each other. I remember looking forward to every word you said, listening so carefully, and getting completely lost in your voice. The journey may have been short, but those moments felt endless to my heart. ❤️" },
+            { src: "./assets/images/junnu/acall.png", desc: "That one phone call brought back all the dreams I had once imagined with you. It felt like life was giving us another chance to begin a beautiful new chapter together. From that day, our endless phone calls became a part of our lives, sharing every little happiness, every worry, and every burden. We started becoming each other's comfort, finding happiness in conversations and strength in sharing our struggles. It wasn't just a new beginning; it was the moment I started dreaming about us all over again. ❤️" },
+            { src: "./assets/images/junnu/Auto-Rickshaw.png", desc: "I still remember the day everything between us started to change. The moment I gently touched your cheeks, something special began to bloom in your heart too. Maybe it was a small gesture, but it carried feelings that words couldn't express. That was the phase when our friendship slowly turned into love, when we started feeling something deeper for each other, and when our beautiful relationship truly began. ❤️" },
+            { src: "./assets/images/junnu/first_date.jpg", desc: "After such a long gap, our first date finally arrived, and I wanted everything to be perfect. I started hitting the gym and working on myself, wanting to look my best when I saw you again. But nothing could prepare me for that first glance — seeing you peeking out from the auto. In that one moment, all those years seemed to disappear, and it felt just like the old days when we used to wait for each other and steal little moments together. My heart felt the same excitement, as if our love story had never paused. ❤️" },
+            { src: "./assets/images/junnu/second_date.jpg", desc: "Our second meeting was even more special because, for the first time, you sat on my bike. I still remember that feeling as we rode together. Having you so close, sharing that little journey, made my heart feel something I could never put into words. It wasn't just a bike ride; it was a dream moment I had once imagined, finally becoming real. ❤️" },
+            { src: "./assets/images/junnu/third-date.jpg", desc: "Our third date was special because by then, we were no longer just two people meeting; we were in a beautiful relationship, creating countless memories together. There was anger, shyness, happiness, little fights, laughter, and so many emotions that made every moment unique. But among all those memories, one will always stay closest to my heart — my first forehead kiss to you. It was a simple gesture, but it carried all the love, care, and promises I had in my heart for you. ❤️" },
+            { src: "./assets/images/junnu/first-selfie.jpg", desc: "I still remember our first selfie together, a moment that will always be special to me. For the first time, we were both captured in a single frame, and what made it even more beautiful was that it happened at your home, surrounded by happiness and warmth. It was just one photograph, but for me, it captured a feeling I had waited so long for — having you beside me and finally seeing us together in one picture. ❤️" },
+            { src: "./assets/images/junnu/got-close.jpg", desc: "During the decorations for your sister's wedding, we finally got more time to spend together, creating countless beautiful memories. Every little moment, every conversation, and every smile brought us closer. It felt like we had our own little world amidst all the wedding celebrations. But among all those memories, one moment will always remain unforgettable — my very first kiss. It was a moment filled with love, excitement, and emotions that I will carry in my heart forever. ❤️" },
+            { src: "./assets/images/junnu/first-boat-ride.jpg", desc: "The day I fulfilled your first wish is one I will always cherish. You wanted to go on a boat ride, and somehow, with a little luck, we got to enjoy that ride all alone together. Seeing you happy, taking you closer to the water, and sharing that peaceful moment with you made my heart so full. It wasn't just about fulfilling a wish; it was about making one of your dreams come true and seeing happiness in your eyes. ❤️" },
+            { src: "./assets/images/junnu/first_gift.jpg", desc: "I still remember the first gift you gave me personally. It was such a beautiful surprise because I had no idea you were planning something special for me. Until the moment you handed it to me, I was completely unaware. It wasn't just a gift; it was the first time I felt your love and thoughtfulness through something you chose for me. That little surprise became a priceless memory, one I'll always treasure. ❤️" },
+            { src: "./assets/images/junnu/visiting_godavari.jpg", desc: "Our first trip to Godavari together will always hold a special place in my heart. It wasn't just about visiting a beautiful place; it was about spending precious time with you, sharing little conversations, laughter, and moments of togetherness. Having you beside me, enjoying the beauty of the river and creating memories together, made that day truly unforgettable. It was another beautiful chapter in our story that I wish I could relive a thousand times. ❤️" },
+            { src: "./assets/images/junnu/angry-bird.jpg", desc: "I still remember my little angry bird getting upset with me for not walking beside her in public, especially in my hometown. Back then, I hadn't yet introduced you to my family, and I was still keeping our relationship a secret. I know it hurt you to feel like I wasn't acknowledging you openly, but those little moments of anger, your expectations, and the way you wanted to walk beside me are memories I can never forget. ❤️" }
+        ];
+        const FINAL_IMAGE = "./assets/images/junnu/final.png";
+        const FINAL_TEXT = "Every chapter of my life may change, but one thing will remain forever — my love for you. Today, tomorrow, and in every lifetime, I'll always choose you. ❤️";
+        /* =================================== */
+
+        const PAIRS = 18; // 36 cards = 18 pairs; images repeat after 13 (images 1-5 appear twice as pairs)
+        const EMOJI = ["🌸", "🚀", "🎨", "🐬", "🍕", "🎸", "🌈", "🦋", "⚽", "🍓", "🎲", "🌙", "⭐"];
+        const COLORS = ["#ffd6e0", "#d0f4de", "#cde7ff", "#fff1b8", "#e4d4ff", "#ffd9b3"];
+        const $ = s => document.querySelector(s);
+        function placeholder(i, big) {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="${COLORS[i % 6]}"/><text x="100" y="135" font-size="100" text-anchor="middle">${big || EMOJI[i % 13]}</text></svg>`;
+            return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+        }
+        function imgEl(src, i, big) { const im = new Image(); im.alt = ""; im.onerror = () => { im.onerror = null; im.src = placeholder(i, big) }; im.src = src; return im }
+        const preload = IMAGES.map((d, i) => imgEl(d.src, i));
+
+        let first = null, lock = false, moves = 0, found = 0;
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[a[i], a[j]] = [a[j], a[i]] } return a }
+
+        function build() {
+            const board = $("#board"); board.innerHTML = "";
+            first = null; lock = false; moves = 0; found = 0; update();
+            $("#final").classList.remove("show");
+            const deck = [];
+            for (let p = 0; p < PAIRS; p++) { deck.push(p % 18, p % 18) }
+            shuffle(deck).forEach(k => {
+                const c = document.createElement("button");
+                c.className = "card"; c.dataset.k = k; c.setAttribute("aria-label", "Card");
+                c.innerHTML = '<div class="inner"><div class="face front">AS</div><div class="face back"></div></div>';
+                c.querySelector(".back").appendChild(imgEl(IMAGES[k].src, k));
+                c.onclick = () => pick(c);
+                board.appendChild(c);
+            });
+        }
+        function update() { $("#moves").textContent = moves; $("#pairs").textContent = found }
+
+        function pick(c) {
+            if (lock || c.classList.contains("flipped")) return;
+            c.classList.add("flipped");
+            if (!first) { first = c; return }
+            const a = first, b = c; first = null; moves++; lock = true; update();
+            if (a.dataset.k === b.dataset.k) {
+                setTimeout(() => {
+                    [a, b].forEach(x => x.classList.add("matched", "pop"));
+                    found++; update();
+                    openModal(+a.dataset.k, () => { lock = false; if (found === PAIRS) win() });
+                }, 600);
+            } else {
+                setTimeout(() => { a.classList.remove("flipped"); b.classList.remove("flipped"); lock = false }, 900);
+            }
+        }
+
+        /* modal */
+        let onClose = null;
+        function openModal(k, cb) {
+            $("#mImg").src = preload[k].src; $("#mDesc").textContent = IMAGES[k].desc;
+            $("#modal").classList.add("show"); onClose = cb;
+            confettiBurst();
+        }
+        function closeModal() { $("#modal").classList.remove("show"); if (onClose) { const f = onClose; onClose = null; f() } }
+        $("#mClose").onclick = closeModal;
+        $("#modal").onclick = e => { if (e.target.id === "modal") closeModal() };
+        $("#restart").onclick = () => { parts = []; build() };
+
+        /* final */
+        function win() {
+            const fi = $("#finalImg"); fi.onerror = () => { fi.onerror = null; fi.src = placeholder(0, "🏆") }; fi.src = FINAL_IMAGE;
+            $("#finalCap").textContent = FINAL_TEXT;
+            $("#final").classList.add("show");
+            fireworks();
+        }
+
+        /* effects */
+        const cv = $("#fx"), ctx = cv.getContext("2d"); let parts = [], running = false, stopAt = 0;
+        function size() { cv.width = innerWidth; cv.height = innerHeight } size(); addEventListener("resize", size);
+        const CONF = ["#e63946", "#fca311", "#2ec4b6", "#4361ee", "#f72585", "#ffd60a"];
+        function confettiBurst() {
+            for (let i = 0; i < 120; i++) {
+                const side = i % 2 ? 1 : 0, x = side ? innerWidth : 0, ang = (side ? Math.PI : 0) + (-Math.random() * 1.0 - 0.2) * (side ? -1 : 1);
+                const sp = 8 + Math.random() * 10;
+                parts.push({ t: "c", x, y: innerHeight * .75, vx: Math.cos(ang) * sp * (side ? 1 : 1), vy: -Math.abs(Math.sin(ang)) * sp - 4, g: .28, w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, r: Math.random() * 6, vr: (Math.random() - .5) * .4, col: CONF[i % 6], life: 1, d: .008 });
+            }
+            for (let i = 0; i < 80; i++)parts.push({ t: "c", x: Math.random() * innerWidth, y: -20, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 3, g: .05, w: 6 + Math.random() * 6, h: 4 + Math.random() * 5, r: 0, vr: (Math.random() - .5) * .3, col: CONF[i % 6], life: 1, d: .004 });
+            run();
+        }
+        function fireworks() { stopAt = performance.now() + 9000; launch(); run() }
+        function launch() {
+            if (performance.now() > stopAt) return;
+            parts.push({ t: "r", x: innerWidth * (.15 + Math.random() * .7), y: innerHeight, vx: (Math.random() - .5) * 2, vy: -(11 + Math.random() * 5), g: .22, life: 1, d: 0 });
+            setTimeout(launch, 350 + Math.random() * 250);
+        }
+        function explode(x, y) {
+            const col = CONF[Math.random() * 6 | 0];
+            for (let i = 0; i < 14; i++) {
+                const a = i / 14 * Math.PI * 2, s = 4 + Math.random() * 3;
+                parts.push({ t: "i", x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: .07, img: preload[Math.random() * 18 | 0], sz: 34 + Math.random() * 22, r: 0, vr: (Math.random() - .5) * .2, life: 1, d: .007 });
+            }
+            for (let i = 0; i < 50; i++) {
+                const a = Math.random() * Math.PI * 2, s = Math.random() * 7;
+                parts.push({ t: "s", x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g: .08, col, life: 1, d: .016 });
+            }
+        }
+        function run() { if (!running) { running = true; requestAnimationFrame(loop) } }
+        function loop() {
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            const next = [];
+            for (const p of parts) {
+                p.vy += p.g; p.x += p.vx; p.y += p.vy;
+                if (p.t === "r") {
+                    ctx.fillStyle = "#fff"; ctx.fillRect(p.x - 2, p.y, 4, 10);
+                    if (p.vy > -1) { explode(p.x, p.y); continue }
+                    next.push(p); continue;
+                }
+                p.life -= p.d; if (p.life <= 0 || p.y > innerHeight + 60) continue;
+                ctx.globalAlpha = Math.min(1, p.life * 1.5);
+                if (p.t === "c") { p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.col; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.restore() }
+                else if (p.t === "s") { ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, 7); ctx.fill() }
+                else {
+                    p.r += p.vr; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+                    ctx.beginPath(); ctx.arc(0, 0, p.sz / 2, 0, 7); ctx.clip();
+                    try { ctx.drawImage(p.img, -p.sz / 2, -p.sz / 2, p.sz, p.sz) } catch (e) { }
+                    ctx.restore(); ctx.globalAlpha = Math.min(1, p.life * 1.5); ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x, p.y, p.sz / 2, 0, 7); ctx.stroke()
+                }
+                ctx.globalAlpha = 1; next.push(p);
+            }
+            parts = next;
+            if (parts.length || performance.now() < stopAt) requestAnimationFrame(loop); else { running = false; ctx.clearRect(0, 0, cv.width, cv.height) }
+        }
+        build();
+
+
+        let toolbar = document.querySelector('.toolbar');
+        let menu = document.querySelector('.menubar');
+
+        toolbar.addEventListener('click', () => {
+            document.body.classList.toggle('open');
+            menu.classList.toggle('active');
+        })
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let lis = menu.querySelectorAll('li a');
+            const currentPath = location.pathname.replace(/^\//, '') || 'index.html';
+            lis.forEach(e => {
+                if (e.getAttribute('href') == currentPath) {
+                    e.classList.add('active')
+                }
+            })
+        })
+    </script>
+</body>
+
+</html>
